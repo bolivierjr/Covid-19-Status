@@ -16,6 +16,20 @@ async function storeData(data) {
 }
 
 /**
+ * Fetch the data with axios.
+ * @param {string} url
+ *        The url to fetch data from.
+ * @returns {Array} Response
+ */
+async function fetch(url) {
+  const response = await axios.get(url, {
+    headers: { Accept: 'application/vnd.github.v3+json' },
+  });
+
+  return response;
+}
+
+/**
  * Filter out the results by surrounding counties FPIS numbers
  * and group them by county.
  * @param {string} csvUrl
@@ -24,29 +38,31 @@ async function storeData(data) {
  *          The regional area results seperated by county.
  */
 async function filterRegions(csvUrl) {
-  const csvResponse = await axios.get(csvUrl);
-  const csvData = csvResponse.data;
-  const results = Papa.parse(csvData).data;
-
   const regions = {};
+  const csvResponse = await fetch(csvUrl);
 
-  results.forEach(region => {
-    const [FPIS] = region;
+  if (csvResponse.status === 200) {
+    const csvData = csvResponse.data;
+    const results = Papa.parse(csvData).data;
 
-    if (FPIS === '22071') {
-      regions.nolaResults = region;
-    } else if (FPIS === '22103') {
-      regions.tammanyResults = region;
-    } else if (FPIS === '22051') {
-      regions.jeffersonResults = region;
-    } else if (FPIS === '22105') {
-      regions.tangipahoaResults = region;
-    } else if (FPIS === '22121') {
-      regions.westBatonRougeResults = region;
-    } else if (FPIS === '22033') {
-      regions.eastBatonRougeResults = region;
-    }
-  });
+    results.forEach(region => {
+      const [FPIS] = region;
+
+      if (FPIS === '22071') {
+        regions.nolaResults = region;
+      } else if (FPIS === '22103') {
+        regions.tammanyResults = region;
+      } else if (FPIS === '22051') {
+        regions.jeffersonResults = region;
+      } else if (FPIS === '22105') {
+        regions.tangipahoaResults = region;
+      } else if (FPIS === '22121') {
+        regions.westBatonRougeResults = region;
+      } else if (FPIS === '22033') {
+        regions.eastBatonRougeResults = region;
+      }
+    });
+  }
 
   return regions;
 }
@@ -61,15 +77,12 @@ async function getData() {
 
   try {
     const reportsUrl = `https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports`;
+    const reportsResponse = await fetch(reportsUrl);
 
-    const reportsResponse = await axios.get(reportsUrl, {
-      headers: { Accept: 'application/vnd.github.v3+json' },
-    });
-
-    if (reportsResponse.statusText === 'OK') {
+    if (reportsResponse.status === 200) {
       const reports = reportsResponse.data;
       const today = format(new Date(), 'MM-dd-yyyy');
-      const todaysData = reports.filter(report => report.name === `03-26-2020.csv`); // Usually has `${today}.csv`
+      const todaysData = reports.filter(report => report.name === `03-25-2020.csv`); // Usually has `${today}.csv`
 
       if (Array.isArray(todaysData) && todaysData.length) {
         const [todaysCsv] = todaysData;
@@ -84,10 +97,6 @@ async function getData() {
 }
 
 getData().then(data => {
+  console.log(data);
   storeData(data);
 });
-
-module.exports = {
-  filterRegions,
-  getData,
-};
