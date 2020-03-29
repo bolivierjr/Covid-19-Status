@@ -6,7 +6,7 @@ const axios = require('axios');
 
 /**
  * Store the results into the database.
- * @todo Finish this function
+ * @TODO Finish this function
  * @param {Object<string, Array<string>} data
  *        The regional area results seperated by county.
  * @returns void
@@ -18,13 +18,16 @@ async function storeData(data) {
 /**
  * Filter out the results by surrounding counties FPIS numbers
  * and group them by county.
- * @param {string} csvData
- *        The csv data received by CSSEGISandData.
+ * @param {string} csvUrl
+ *        The csv data url received by CSSEGISandData.
  * @returns {Object<string, Array<string>}
  *          The regional area results seperated by county.
  */
-async function filterRegions(csvData) {
+async function filterRegions(csvUrl) {
+  const csvResponse = await axios.get(csvUrl);
+  const csvData = csvResponse.data;
   const results = Papa.parse(csvData).data;
+
   const regions = {};
 
   results.forEach(region => {
@@ -57,24 +60,20 @@ async function getData() {
   let data = {};
 
   try {
-    const reportsUrl = `
-      https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports
-    `;
+    const reportsUrl = `https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports`;
 
     const reportsResponse = await axios.get(reportsUrl, {
       headers: { Accept: 'application/vnd.github.v3+json' },
     });
 
     if (reportsResponse.statusText === 'OK') {
+      const reports = reportsResponse.data;
       const today = format(new Date(), 'MM-dd-yyyy');
-      const reports = await reportsResponse.data;
-      const todaysData = reports.filter(report => report.name === `03-27-2020.csv`);
+      const todaysData = reports.filter(report => report.name === `03-26-2020.csv`); // Usually has `${today}.csv`
 
       if (Array.isArray(todaysData) && todaysData.length) {
         const [todaysCsv] = todaysData;
-        const csvResponse = await axios.get(todaysCsv.download_url);
-        const csvData = await csvResponse.data;
-        data = await filterRegions(csvData);
+        data = await filterRegions(todaysCsv.download_url);
       }
     }
   } catch (error) {
@@ -85,7 +84,6 @@ async function getData() {
 }
 
 getData().then(data => {
-  console.log(data);
   storeData(data);
 });
 
