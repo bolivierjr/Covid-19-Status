@@ -1,0 +1,36 @@
+{
+  "name": "server",
+  "version": "1.0.0",
+  "description": "An API for covid-19 results in Louisiana regions.",
+  "main": "app.js",
+  "repository": "https://github.com/bolivierjr/Covid-19-Status",
+  "author": "Bruce Olivier",
+  "license": "MIT",
+  "private": true,
+  "dependencies": {
+    "axios": "^0.19.2",
+    "date-fns": "^2.11.1",
+    "node-fetch": "^2.6.0",
+    "papaparse": "^5.1.1"
+  },
+  "devDependencies": {
+    "axios-mock-adapter": "^1.18.1",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^14.1.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-import": "^2.20.1",
+    "eslint-plugin-jest": "^23.8.2",
+    "eslint-plugin-prettier": "^3.1.2",
+    "jest": "^25.2.3",
+    "prettier": "^2.0.2"
+  },
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "jest": {
+    "automock": false,
+    "setupFiles": [
+      "./test/setupJest.js"
+    ]
+  }
+}
