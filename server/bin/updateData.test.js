@@ -2,8 +2,13 @@ const axios = require('axios');
 const { getData } = require('./updateData');
 
 jest.mock('axios');
+let realDate;
 
-test('tests getData function', async () => {
+afterAll(() => {
+  global.Date = realDate; // Reset the global Date back to default
+});
+
+test('getData returns the formatted data to put into the db', async () => {
   const mockReportsData = {
     status: 200,
     data: [
@@ -37,9 +42,23 @@ test('tests getData function', async () => {
     ],
   };
 
+  // Mock for axios's get function
   axios.get
     .mockImplementationOnce(() => Promise.resolve(mockReportsData))
     .mockImplementationOnce(() => Promise.resolve(mockCsvData));
+
+  // Mock hack to make the Date object return 03-26-2020
+  realDate = Date;
+  global.Date = class extends Date {
+    constructor(date) {
+      if (date) {
+        // eslint-disable-next-line constructor-super
+        return super(date);
+      }
+
+      return new Date('2020-03-26T11:01:58.135Z');
+    }
+  };
 
   const data = await getData();
 
