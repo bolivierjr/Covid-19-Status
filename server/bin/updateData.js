@@ -78,12 +78,10 @@ async function getData() {
   try {
     const reportsUrl = `https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports`;
     const reportsResponse = await fetch(reportsUrl);
-
     if (reportsResponse.status === 200) {
       const reports = reportsResponse.data;
       const today = format(new Date(), 'MM-dd-yyyy');
-      const todaysData = reports.filter(report => report.name === `03-25-2020.csv`); // Usually has `${today}.csv`
-
+      const todaysData = reports.filter(report => report.name === `${today}.csv`);
       if (Array.isArray(todaysData) && todaysData.length) {
         const [todaysCsv] = todaysData;
         data = await filterRegions(todaysCsv.download_url);
@@ -97,6 +95,7 @@ async function getData() {
 }
 
 getData().then(data => {
-  console.log(data);
   storeData(data);
 });
+
+exports.getData = getData;
