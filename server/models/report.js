@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const Report = new mongoose.Schema({
+const ReportSchema = new mongoose.Schema({
   fpis: Number,
   admin2: String,
   province_state: String,
@@ -12,7 +12,9 @@ const Report = new mongoose.Schema({
   deaths: Number,
   recovered: Number,
   combined_key: String,
-  date: { type: Date, default: Date.now },
+  createdAt: { type: Date, default: Date.now },
 });
 
-export default mongoose.model('Report', Report);
+ReportSchema.static('getReport', fpis => this.findOne({ fpis }));
+
+module.exports = mongoose.model('Report', ReportSchema);

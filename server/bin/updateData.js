@@ -68,7 +68,7 @@ async function filterRegions(csvUrl) {
 }
 
 /**
- * Gathers the selected the data from the CSSEGISandData reports.
+ * Gathers the selected data from the CSSEGISandData reports.
  * @returns {Object<string, Array<string>}
  *          The regional area results seperated by county.
  */
@@ -78,10 +78,12 @@ async function getData() {
   try {
     const reportsUrl = `https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports`;
     const reportsResponse = await fetch(reportsUrl);
+
     if (reportsResponse.status === 200) {
       const reports = reportsResponse.data;
       const today = format(new Date(), 'MM-dd-yyyy');
       const todaysData = reports.filter(report => report.name === `${today}.csv`);
+
       if (Array.isArray(todaysData) && todaysData.length) {
         const [todaysCsv] = todaysData;
         data = await filterRegions(todaysCsv.download_url);
