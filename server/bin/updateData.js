@@ -110,7 +110,7 @@ async function getData(fetchAll) {
     if (reportsResponse.status === 200) {
       const reports = reportsResponse.data;
 
-      if (fetchAll === 'fetchAll') {
+      if (fetchAll === '--fetchAll') {
         data = await fetchAllData(reports);
       } else {
         data = await fetchUpdatedData(reports);
@@ -123,10 +123,16 @@ async function getData(fetchAll) {
   return data;
 }
 
-getData().then(data => {
-  console.log(data);
-  storeData(data);
-});
+const [arg] = process.argv.slice(2);
+if (arg === '--fetchAll') {
+  getData(arg).then(data => {
+    storeData(data);
+  });
+} else {
+  getData().then(data => {
+    storeData(data);
+  });
+}
 
 module.exports = {
   getData,
