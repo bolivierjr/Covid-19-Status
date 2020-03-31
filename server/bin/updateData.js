@@ -1,6 +1,7 @@
 'use_strict';
 
 const format = require('date-fns/format');
+const isValid = require('date-fns/isValid');
 const Papa = require('papaparse');
 const axios = require('axios');
 
@@ -19,7 +20,7 @@ async function storeData(data) {
  * Fetch the data with axios.
  * @param {string} url
  *        The url to fetch data from.
- * @returns {Array} Response
+ * @returns {Object} Response
  */
 async function fetch(url) {
   const response = await axios.get(url, {
@@ -34,37 +35,64 @@ async function fetch(url) {
  * and group them by county.
  * @param {string} csvUrl
  *        The csv data url received by CSSEGISandData.
- * @returns {Object<string, Array<string>}
+ * @returns {Object[]}
  *          The regional area results seperated by county.
  */
 async function filterRegions(csvUrl) {
-  const regions = {};
+  let reports = [];
   const csvResponse = await fetch(csvUrl);
 
   if (csvResponse.status === 200) {
     const csvData = csvResponse.data;
     const results = Papa.parse(csvData).data;
 
-    results.forEach(region => {
-      const [FPIS] = region;
+    // Parishes of Orleans, Tangipahoa, St. Tammany, Jefferson,
+    // West Baton Rouge, and East Baton Rouge
+    const regionsFPIS = ['22071', '22103', '22105', '22121', '22033'];
 
-      if (FPIS === '22071') {
-        regions.nolaResults = region;
-      } else if (FPIS === '22103') {
-        regions.tammanyResults = region;
-      } else if (FPIS === '22051') {
-        regions.jeffersonResults = region;
-      } else if (FPIS === '22105') {
-        regions.tangipahoaResults = region;
-      } else if (FPIS === '22121') {
-        regions.westBatonRougeResults = region;
-      } else if (FPIS === '22033') {
-        regions.eastBatonRougeResults = region;
-      }
+    reports = results.filter(region => {
+      const [FPIS] = region;
+      return regionsFPIS.includes(FPIS);
     });
   }
 
-  return regions;
+  return reports;
+}
+
+async function fetchUpdatedData(reports) {
+  let data = [];
+  const today = format(new Date(), 'MM-dd-yyyy');
+  const todaysData = reports.filter(report => report.name === `${today}.csv`);
+
+  if (Array.isArray(todaysData) && todaysData.length) {
+    const [todaysCsv] = todaysData;
+    data = await filterRegions(todaysCsv.download_url);
+  }
+
+  return data;
+}
+
+async function fetchAllData(reports) {
+  let data = [];
+
+  // eslint-disable-next-line arrow-body-style
+  const allReports = reports.filter(report => {
+    // Find all reports that match a dated csv file (i.e. 03-26-2020.csv)
+    // and newer than 03-21-2020 (That's when they started listing by counties)
+    return report.name.slice(0, -4) > '03-21-2020' && isValid(new Date(report.name.slice(0, -4)));
+  });
+
+  if (Array.isArray(allReports) && allReports.length) {
+    const tasks = allReports.map(csvInfo => filterRegions(csvInfo.download_url));
+    const results = await Promise.allSettled(tasks);
+
+    results.forEach(result => {
+      const { value } = result;
+      data = [...data, ...value];
+    });
+  }
+
+  return data;
 }
 
 /**
@@ -72,8 +100,8 @@ async function filterRegions(csvUrl) {
  * @returns {Object<string, Array<string>}
  *          The regional area results seperated by county.
  */
-async function getData() {
-  let data = {};
+async function getData(fetchAll) {
+  let data = [];
 
   try {
     const reportsUrl = `https://api.github.com/repos/CSSEGISandData/COVID-19/contents/csse_covid_19_data/csse_covid_19_daily_reports`;
@@ -81,12 +109,11 @@ async function getData() {
 
     if (reportsResponse.status === 200) {
       const reports = reportsResponse.data;
-      const today = format(new Date(), 'MM-dd-yyyy');
-      const todaysData = reports.filter(report => report.name === `${today}.csv`);
 
-      if (Array.isArray(todaysData) && todaysData.length) {
-        const [todaysCsv] = todaysData;
-        data = await filterRegions(todaysCsv.download_url);
+      if (fetchAll === 'fetchAll') {
+        data = await fetchAllData(reports);
+      } else {
+        data = await fetchUpdatedData(reports);
       }
     }
   } catch (error) {
@@ -97,7 +124,11 @@ async function getData() {
 }
 
 getData().then(data => {
+  console.log(data);
   storeData(data);
 });
 
-exports.getData = getData;
+module.exports = {
+  getData,
+  fetchUpdatedData,
+};

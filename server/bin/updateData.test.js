@@ -25,8 +25,8 @@ test('getData returns the formatted data to put into the db', async () => {
     data: `22071,Orleans,Louisiana,US,2020-03-26 23:48:35,30.06971951,-89.92660315,997,46,0,0,"Orleans, Louisiana, US"\n`,
   };
 
-  const getDataExpected = {
-    nolaResults: [
+  const getDataExpected = [
+    [
       '22071',
       'Orleans',
       'Louisiana',
@@ -40,7 +40,7 @@ test('getData returns the formatted data to put into the db', async () => {
       '0',
       'Orleans, Louisiana, US',
     ],
-  };
+  ];
 
   // Mock for Date to keep it the same day
   MockDate.set('03/26/2020');
