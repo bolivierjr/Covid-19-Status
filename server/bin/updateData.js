@@ -1,9 +1,9 @@
 'use_strict';
 
-const format = require('date-fns/format');
-const isValid = require('date-fns/isValid');
-const Papa = require('papaparse');
-const axios = require('axios');
+import format from 'date-fns/format';
+import isValid from 'date-fns/isValid';
+import Papa from 'papaparse';
+import axios from 'axios';
 
 /**
  * Store the results into the database.
@@ -134,7 +134,4 @@ getData(arg).then(data => {
   storeData(data);
 });
 
-module.exports = {
-  getData,
-  fetchUpdatedData,
-};
+export default getData;
