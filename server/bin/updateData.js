@@ -124,15 +124,15 @@ async function getData(fetchAll) {
 }
 
 const [arg] = process.argv.slice(2);
-if (arg === '--fetchAll') {
-  getData(arg).then(data => {
-    storeData(data);
-  });
-} else {
-  getData().then(data => {
-    storeData(data);
-  });
+if (arg && arg !== '--fetchAll') {
+  console.log('Incorrect argument. Optional Args: --fetchAll');
+  process.exit(1);
 }
+
+getData(arg).then(data => {
+  console.log(data);
+  storeData(data);
+});
 
 module.exports = {
   getData,
