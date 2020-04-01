@@ -10,17 +10,29 @@ async function startServer() {
   await loaders();
   await api(app);
 
-  app.listen(config.port, err => {
-    const logger = Container.get('logger');
+  const logger = Container.get('logger');
 
+  const server = app.listen(config.port, err => {
     if (err) {
       logger.error(err);
       logger.error('Exiting...');
-      process.exit(1);
+      process.exitCode = 1;
     }
 
     logger.info(`Server listening on port: ${config.port} in ${config.env} mode...`);
   });
+
+  const startGraceFulShutdown = () => {
+    logger.warn('Starting shutdown of the server...');
+
+    server.close(() => {
+      logger.warn('Express server shut down.');
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', startGraceFulShutdown);
+  process.on('SIGINT', startGraceFulShutdown);
 }
 
 startServer();
