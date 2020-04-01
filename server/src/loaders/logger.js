@@ -1,28 +1,32 @@
-import { createLogger, format, transports } from 'winston';
-
-const Logger = createLogger({
-  level: 'info',
-  format: format.combine(
-    format.timestamp({
-      format: 'YYYY-MM-DD HH:mm:ss',
-    }),
-    format.errors({ stack: true }),
-    format.splat(),
-    format.json(),
-  ),
-  transports: [new transports.File({ filename: 'covid-status.log' })],
-});
+import winston from 'winston';
+import config from '../config';
 
 /**
- * If we're not in production then **ALSO** log to the `console
- * with the colorized simple format.
+ * If we're in production then log to file and in development
+ * log to the `console with the colorized simple format.
  */
-if (process.env.NODE_ENV !== 'production') {
-  Logger.add(
-    new transports.Console({
-      format: format.combine(format.colorize(), format.simple()),
+const transports = [];
+if (process.env.NODE_ENV !== 'development') {
+  transports.push(new winston.transports.File({ filename: 'covid-status.log' }));
+} else {
+  transports.push(
+    new winston.transports.Console({
+      format: winston.format.combine(winston.format.colorize(), winston.format.simple()),
     }),
   );
 }
+const Logger = winston.createLogger({
+  level: config.loglevel,
+  levels: winston.config.npm.levels,
+  format: winston.format.combine(
+    winston.format.timestamp({
+      format: 'MM-DD-YYYY HH:mm:ss',
+    }),
+    winston.format.errors({ stack: true }),
+    winston.format.splat(),
+    winston.format.json(),
+  ),
+  transports,
+});
 
 export default Logger;

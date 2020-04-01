@@ -9,9 +9,17 @@
   "private": true,
   "dependencies": {
     "axios": "^0.19.2",
+    "body-parser": "^1.19.0",
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
     "date-fns": "^2.11.1",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1",
+    "helmet": "^3.22.0",
+    "http-errors": "^1.7.3",
     "mongoose": "^5.9.6",
     "papaparse": "^5.1.1",
+    "path": "^0.12.7",
     "typedi": "^0.8.0",
     "winston": "^3.2.1"
   },
@@ -35,6 +43,7 @@
   "scripts": {
     "start:update": "npx babel-node --presets @babel/preset-env bin/updateData.js",
     "start:updateAll": "npx babel-node --presets @babel/preset-env bin/updateData.js --fetchAll",
+    "start:dev": "nodemon --exec babel-node src/server.js",
     "test": "jest --verbose"
   },
   "jest": {
