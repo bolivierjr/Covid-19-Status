@@ -4,13 +4,13 @@ import format from 'date-fns/format';
 import isValid from 'date-fns/isValid';
 import Papa from 'papaparse';
 import axios from 'axios';
-
+// import AxiosResponse fro 'axios'
 /**
  * Store the results into the database.
  * @TODO Finish this function
- * @param {Object<string, Array<string>} data
+ * @param {Object<string, string[]>} data
  *        The regional area results seperated by county.
- * @returns void
+ * @returns {void}
  */
 async function storeData(data) {
   // womp womp
@@ -20,7 +20,7 @@ async function storeData(data) {
  * Fetch the data with axios.
  * @param {string} url
  *        The url to fetch data from.
- * @returns {Object} Response
+ * @returns Promise<AxiosResponse>
  */
 async function fetch(url) {
   const response = await axios.get(url, {
@@ -35,7 +35,7 @@ async function fetch(url) {
  * and group them by county.
  * @param {string} csvUrl
  *        The csv data url received by CSSEGISandData.
- * @returns {Object[]}
+ * @returns {Promise<string[]>}
  *          The regional area results seperated by county.
  */
 async function filterRegions(csvUrl) {
@@ -97,7 +97,7 @@ async function fetchAllData(reports) {
 
 /**
  * Gathers the selected data from the CSSEGISandData reports.
- * @returns {Object<string, Array<string>}
+ * @returns {Promise<Object<string, string[]>}
  *          The regional area results seperated by county.
  */
 async function getData(fetchAll) {

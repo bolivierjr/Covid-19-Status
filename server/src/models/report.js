@@ -17,4 +17,4 @@ const ReportSchema = new mongoose.Schema({
 
 ReportSchema.static('getReport', fpis => this.findOne({ fpis }));
 
-module.exports = mongoose.model('Report', ReportSchema);
+export default mongoose.model('ReportModel', ReportSchema);
