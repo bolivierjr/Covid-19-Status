@@ -1,0 +1,11 @@
+FROM node:alpine
+
+WORKDIR /app
+
+COPY package.json ./
+RUN yarn install
+COPY . .
+
+RUN yarn global add nodemon
+
+CMD ["nodemon", "--exec", "babel-node", "src/server.js"]

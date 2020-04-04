@@ -1,0 +1,41 @@
+version: '3.5'
+services: 
+   mongo:
+      image: 'mongo:latest'
+      env_file:
+         - ./server/.env.dev
+      restart: always
+      volumes:
+         - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
+      ports:
+         - '27017-27019:27017-27019'
+      networks:
+         my-network:
+            ipv4_address: 172.16.0.13
+
+   server:
+      container_name: express
+      depends_on: 
+         - mongo
+      env_file:
+         - ./server/.env.dev
+      restart: always
+      build:
+         context: ./server
+         dockerfile: Dockerfile.dev
+      volumes:
+         - './server:/app'
+         - /app/node_modules
+      ports:
+         - '5000:5000'
+      networks:
+         my-network:
+            ipv4_address: 172.16.0.12
+
+networks:
+   my-network:
+      driver: bridge
+      ipam:
+         driver: default
+         config:
+            - subnet: 172.16.0.0/24

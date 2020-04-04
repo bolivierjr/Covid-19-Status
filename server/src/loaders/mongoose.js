@@ -6,9 +6,9 @@ export default async () => {
   const logger = Container.get('logger');
 
   try {
-    await mongooose.connect(config.dbUrl, { useNewUrlParser: true });
+    await mongooose.connect(config.dbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
   } catch (err) {
-    logger.error(`src.loaders.mongoose.connection.failed: ${err}`);
+    throw new Error(`src.loaders.mongoose.connection.failed: ${err}`);
   }
 
   mongooose.connection.on('error', err => {

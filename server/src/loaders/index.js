@@ -6,6 +6,10 @@ export default async () => {
   await DInjectorLoader();
   Logger.info('Dependency Injector Loaded!');
 
-  await MongooseLoader();
-  Logger.info('Mongoose Connection Loaded!');
+  try {
+    await MongooseLoader();
+    Logger.info('Mongoose Connection Loaded!');
+  } catch (err) {
+    Logger.error(err.message);
+  }
 };

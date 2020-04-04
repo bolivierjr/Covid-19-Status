@@ -12,27 +12,26 @@ async function startServer() {
 
   const logger = Container.get('logger');
 
-  const server = app.listen(config.port, err => {
-    if (err) {
-      logger.error(err);
-      logger.error('Exiting...');
+  const server = app
+    .listen(config.port, () => {
+      logger.info(`Server listening on port ${config.port} in ${config.env} mode...`);
+    })
+    .on('error', err => {
+      logger.error(`${err}. Exiting...`);
       process.exitCode = 1;
-    }
+    });
 
-    logger.info(`Server listening on port: ${config.port} in ${config.env} mode...`);
-  });
-
-  const startGraceFulShutdown = () => {
+  const startGracefulShutdown = () => {
     logger.warn('Starting shutdown of the server...');
 
     server.close(() => {
       logger.warn('Express server shut down.');
-      process.exit(0);
+      process.exitCode = 0;
     });
   };
 
-  process.on('SIGTERM', startGraceFulShutdown);
-  process.on('SIGINT', startGraceFulShutdown);
+  process.on('SIGTERM', startGracefulShutdown);
+  process.on('SIGINT', startGracefulShutdown);
 }
 
 startServer();
