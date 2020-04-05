@@ -3,7 +3,7 @@ import config from '../config';
 
 /**
  * If we're in production then log to file and in development
- * log to the `console with the colorized simple format.
+ * log to the console with the colorized simple format.
  */
 const transports = [];
 if (process.env.NODE_ENV !== 'development') {

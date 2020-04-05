@@ -4,6 +4,11 @@ import loaders from './loaders';
 import config from './config';
 import api from './api';
 
+/**
+ * Start the Express server and run the loaders.
+ *
+ * @returns {void}
+ */
 async function startServer() {
   const app = express();
 

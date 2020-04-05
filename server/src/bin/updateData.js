@@ -3,12 +3,14 @@
 import format from 'date-fns/format';
 import isValid from 'date-fns/isValid';
 import Papa from 'papaparse';
-import axios from 'axios';
-// import AxiosResponse fro 'axios'
+import axios, { AxiosResponse } from 'axios';
+import Logger from '../loaders/logger';
+
 /**
  * Store the results into the database.
- * @TODO Finish this function
- * @param {Object<string, string[]>} data
+ *
+ * @todo Finish this function
+ * @param {object} data
  *        The regional area results seperated by county.
  * @returns {void}
  */
@@ -17,10 +19,11 @@ async function storeData(data) {
 }
 
 /**
- * Fetch the data with axios.
- * @param {string} url
- *        The url to fetch data from.
- * @returns Promise<AxiosResponse>
+ * Fetch the github repo data with axios.
+ *
+ * @param {string} url The url to fetch data from.
+ * @returns {AxiosResponse}
+ *          Response back from the http request.
  */
 async function fetch(url) {
   const response = await axios.get(url, {
@@ -33,6 +36,7 @@ async function fetch(url) {
 /**
  * Filter out the results by surrounding counties FPIS numbers
  * and group them by county.
+ *
  * @param {string} csvUrl
  *        The csv data url received by CSSEGISandData.
  * @returns {Promise<string[]>}
@@ -59,6 +63,15 @@ async function filterRegions(csvUrl) {
   return reports;
 }
 
+/**
+ * Fetch the data from github's API and filter out by region
+ * for today's results.
+ *
+ * @param {object[]} reports
+ *        Data received back from github's API with all the files in a repo.
+ * @returns {Promise<object[]>}
+ *        The filtered data for today's update.
+ */
 async function fetchUpdatedData(reports) {
   let data = [];
   const today = format(new Date(), 'MM-dd-yyyy');
@@ -72,6 +85,15 @@ async function fetchUpdatedData(reports) {
   return data;
 }
 
+/**
+ * Fetch all the data from github's API and filter out by region
+ * for results since 03-21-2020.
+ *
+ * @param {object[]} reports
+ *        Data received back from github's API with all the files in a repo.
+ * @returns {Promise<object[]>}
+ *        The filtered data for today's update.
+ */
 async function fetchAllData(reports) {
   let data = [];
 
@@ -97,7 +119,10 @@ async function fetchAllData(reports) {
 
 /**
  * Gathers the selected data from the CSSEGISandData reports.
- * @returns {Promise<Object<string, string[]>}
+ *
+ * @param {string} fetchAll
+ *        The node cli argument given to run this function.
+ * @returns {Promise<object[]>}
  *          The regional area results seperated by county.
  */
 async function getData(fetchAll) {
@@ -117,21 +142,10 @@ async function getData(fetchAll) {
       }
     }
   } catch (error) {
-    console.log(error);
+    Logger.error(error);
   }
 
   return data;
 }
 
-const [arg] = process.argv.slice(2);
-if (arg && arg !== '--fetchAll') {
-  console.log('Incorrect argument. Optional Args: --fetchAll');
-  process.exit(1);
-}
-
-getData(arg).then(data => {
-  console.log(data);
-  storeData(data);
-});
-
-export default getData;
+export default { getData, storeData };

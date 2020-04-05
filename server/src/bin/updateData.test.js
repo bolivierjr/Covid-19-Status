@@ -1,6 +1,6 @@
-const axios = require('axios');
-const MockDate = require('mockdate');
-const { getData } = require('./updateData');
+import axios from 'axios';
+import MockDate from 'mockdate';
+import update from './updateData';
 
 jest.mock('axios');
 
@@ -49,7 +49,7 @@ test('getData returns the formatted data to put into the db', async () => {
     .mockImplementationOnce(() => Promise.resolve(mockReportsData))
     .mockImplementationOnce(() => Promise.resolve(mockCsvData));
 
-  const data = await getData();
+  const data = await update.getData();
 
   expect(data).toStrictEqual(getDataExpected);
 });

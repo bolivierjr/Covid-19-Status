@@ -5,6 +5,7 @@ import ReportModel from '../models/report';
 /**
  * Dependency injector loader to inject single
  * instances anywhere into the app.
+ *
  * @returns {void}
  */
 export default () => {

@@ -4,8 +4,8 @@
     "commonjs": true,
     "es6": true
   },
-  "extends": ["prettier", "airbnb-base", "plugin:jest/recommended"],
-  "plugins": ["prettier", "jest"],
+  "extends": ["prettier", "airbnb-base", "plugin:jest/recommended", "plugin:jsdoc/recommended"],
+  "plugins": ["prettier", "jest", "jsdoc"],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
