@@ -4,18 +4,62 @@ import format from 'date-fns/format';
 import isValid from 'date-fns/isValid';
 import Papa from 'papaparse';
 import axios, { AxiosResponse } from 'axios';
+import mongoose from 'mongoose';
+import config from '../config';
+import ReportModel from '../models/report';
 import Logger from '../loaders/logger';
 
 /**
  * Store the results into the database.
  *
- * @todo Finish this function
  * @param {object} data
  *        The regional area results seperated by county.
  * @returns {void}
  */
 async function storeData(data) {
-  // womp womp
+  try {
+    mongoose.connect(config.dbUrl, { useNewUrlParser: true, useUnifiedTopology: true });
+    Logger.info('src.bin.updateData.storeData.saving.to.db');
+
+    data.forEach(async report => {
+      const [
+        fpis,
+        admin2,
+        provinceState,
+        countryRegion,
+        lastUpdate,
+        lat,
+        long,
+        confirmed,
+        deaths,
+        recovered,
+        active,
+        combinedKey,
+      ] = report;
+
+      const reportModel = new ReportModel({
+        fpis: parseInt(fpis, 10),
+        admin2,
+        provinceState,
+        countryRegion,
+        lastUpdate: new Date(lastUpdate),
+        lat: parseInt(lat, 10),
+        long: parseInt(long, 10),
+        confirmed: parseInt(confirmed, 10),
+        deaths: parseInt(deaths, 10),
+        recovered: parseInt(recovered, 10),
+        active: parseInt(active, 10),
+        combinedKey,
+      });
+
+      await reportModel.save();
+      Logger.info('src.bin.updateData.storeData.successful.save.to.db');
+    });
+  } catch (err) {
+    Logger.error(`src.bin.updateData.storeData.mongoose.failed: ${err}`);
+  } finally {
+    mongoose.connection.close();
+  }
 }
 
 /**

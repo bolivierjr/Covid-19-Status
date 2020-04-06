@@ -1,17 +1,18 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const ReportSchema = new mongoose.Schema({
   fpis: Number,
   admin2: String,
-  province_state: String,
-  country_region: String,
-  last_update: Date,
+  provinceState: String,
+  countryRegion: String,
+  lastUpdate: Date,
   lat: Number,
   long: Number,
   confirmed: Number,
   deaths: Number,
   recovered: Number,
-  combined_key: String,
+  active: Number,
+  combinedKey: String,
   createdAt: { type: Date, default: Date.now },
 });
 

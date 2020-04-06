@@ -16,7 +16,7 @@ Vagrantfile
 
 *.log
 
-*node_modules/*
+**/node_modules/*
 
 setup.cfg
 Makefile

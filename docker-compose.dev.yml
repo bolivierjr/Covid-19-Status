@@ -1,11 +1,12 @@
 version: '3.5'
-services: 
+services:
    mongo:
       image: 'mongo:latest'
       env_file:
          - ./server/.env.dev
       restart: always
       volumes:
+         - ./mongodb/mongo-volume:/data/db
          - ./mongodb/init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js:ro
       ports:
          - '27017-27019:27017-27019'
@@ -15,7 +16,7 @@ services:
 
    server:
       container_name: express
-      depends_on: 
+      depends_on:
          - mongo
       env_file:
          - ./server/.env.dev

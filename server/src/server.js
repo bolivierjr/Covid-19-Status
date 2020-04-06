@@ -26,6 +26,11 @@ async function startServer() {
       process.exitCode = 1;
     });
 
+  /**
+   * Makes sure the server does cleanup before exiting.
+   *
+   * @returns {void}
+   */
   const startGracefulShutdown = () => {
     logger.warn('Starting shutdown of the server...');
 

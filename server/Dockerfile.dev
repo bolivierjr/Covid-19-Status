@@ -8,4 +8,6 @@ COPY . .
 
 RUN yarn global add nodemon
 
+# RUN yarn start:updateAll
+
 CMD ["nodemon", "--exec", "babel-node", "src/server.js"]
