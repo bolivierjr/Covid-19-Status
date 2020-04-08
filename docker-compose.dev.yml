@@ -1,7 +1,35 @@
-version: '3'
+version: '3.7'
 services:
+   traefik:
+      image: traefik:v1.7.16
+      env_file:
+         - ./server/.env.dev
+      command: --api --docker --acme.email="hello@example.com"
+      restart: always
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - ./traefik/traefik.toml:/traefik.toml
+        - ./traefik/acme.json:/acme.json
+      ports:
+        # Map port 80 and 443 on the host to this container.
+        - "80:80"
+        - "443:443"
+      labels:
+        - 'traefik.docker.network=frontend'
+        - 'traefik.enable=true'
+      #   - 'traefik.frontend.rule=Host:example.com,www.example.com; PathPrefixStrip:/traefik'
+      #   - 'traefik.frontend.headers.STSSeconds=15768000'
+      #   - 'traefik.frontend.auth.basic=admin:changeme'
+        - 'traefik.port=8080'
+        - 'traefik.protocol=http'
+      networks:
+      - backend
+      - frontend
+
    postgresdb:
       image: postgres:alpine
+      # depends_on:
+      #    - traefik
       # *CHANGE THIS PASSWORD TO SOMETHING SECURE*
       environment:
         - POSTGRES_USER=admin
@@ -11,8 +39,8 @@ services:
       ports:
         - 5432:5432
       networks:
-         my-network:
-            ipv4_address: 172.16.0.13
+         - backend
+
 
    server:
       container_name: express
@@ -30,13 +58,8 @@ services:
       ports:
          - '5000:5000'
       networks:
-         my-network:
-            ipv4_address: 172.16.0.12
+         - backend
 
 networks:
-   my-network:
-      driver: bridge
-      ipam:
-         driver: default
-         config:
-            - subnet: 172.16.0.0/24
+   frontend:
+   backend:
