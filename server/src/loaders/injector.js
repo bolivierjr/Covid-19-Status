@@ -1,6 +1,5 @@
 import { Container } from 'typedi';
 import Logger from './logger';
-import ReportModel from '../models/report';
 
 /**
  * Dependency injector loader to inject single
@@ -10,5 +9,4 @@ import ReportModel from '../models/report';
  */
 export default () => {
   Container.set('logger', Logger);
-  Container.set('ReportModel', ReportModel);
 };
