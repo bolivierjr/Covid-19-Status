@@ -21,7 +21,7 @@
     "path": "^0.12.7",
     "pg": "^8.0.0",
     "typedi": "^0.8.0",
-    "typeorm": "^0.2.24",
+    "typeorm": "^0.2.25",
     "winston": "^3.2.1"
   },
   "devDependencies": {
